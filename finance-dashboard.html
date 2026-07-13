@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Live Financial Dashboard</title>
+<style>
+  :root {
+    --surface-1: #fcfcfb; --page: #f4f4f1; --text-1: #0b0b0b; --text-2: #52514e;
+    --muted: #898781; --grid: #e1e0d9; --baseline: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --income: #0ca30c; --income-ink:#006300; --expense: #d03b3b; --warning: #fab219;
+    --serious: #ec835a; --critical:#d03b3b; --series-1: #2a78d6; --series-1-soft: rgba(42,120,214,0.14);
+    --chip: #f0efec; --radius: 14px; --shadow: 0 1px 2px rgba(11,11,11,.05), 0 6px 20px rgba(11,11,11,.06);
+  }
+  :root[data-theme="dark"] {
+    --surface-1: #1a1a19; --page: #0d0d0d; --text-1: #fff; --text-2: #c3c2b7;
+    --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+    --income-ink:#3fce3f; --expense: #e66767; --series-1: #3987e5;
+    --series-1-soft: rgba(57,135,229,0.20); --chip: #262623;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --surface-1: #1a1a19; --page: #0d0d0d; --text-1: #fff; --text-2: #c3c2b7;
+      --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+      --income-ink:#3fce3f; --expense: #e66767; --series-1: #3987e5;
+      --series-1-soft: rgba(57,135,229,0.20); --chip: #262623;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--page); color: var(--text-1);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--series-1); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 18px 56px; }
+
+  header.app { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  header.app h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+  .src { font-size:12px; color:var(--muted); }
+  .live-pill { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:600; color:var(--income-ink);
+    background: color-mix(in srgb, var(--income) 12%, transparent); border:1px solid color-mix(in srgb, var(--income) 30%, transparent);
+    padding:3px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.06em; }
+  .live-pill.paused { color:var(--muted); background:var(--chip); border-color:var(--border); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--income); animation:pulse 1.8s infinite; }
+  .live-pill.paused .dot { background:var(--muted); animation:none; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--income) 55%,transparent);} 70%{box-shadow:0 0 0 7px color-mix(in srgb,var(--income) 0%,transparent);} 100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--income) 0%,transparent);} }
+  .clock { font-variant-numeric:tabular-nums; color:var(--text-2); font-size:13px; }
+  .spacer { flex:1 1 auto; }
+  .btn { font:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-1); background:var(--surface-1);
+    border:1px solid var(--border); border-radius:9px; padding:7px 12px; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { border-color:var(--baseline); } .btn:active { transform:translateY(1px); }
+
+  .card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .card-h { display:flex; align-items:baseline; gap:10px; padding:14px 16px 0; }
+  .card-h h2 { font-size:13px; margin:0; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
+  .card-h .sub { font-size:12px; color:var(--muted); margin-left:auto; }
+
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:14px; }
+  .kpi { padding:15px 16px 16px; }
+  .kpi .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .kpi .value { font-size:26px; font-weight:650; margin:8px 0 2px; letter-spacing:-0.02em; }
+  .kpi .value.neg { color:var(--expense); }
+  .kpi .meta { font-size:12.5px; color:var(--text-2); }
+  .kpi .meta.good { color:var(--income-ink); font-weight:600; }
+  .kpi .meta.bad { color:var(--expense); font-weight:600; }
+  .flash { animation:flash 1s ease; }
+  @keyframes flash { 0%{background:color-mix(in srgb,var(--series-1) 16%,transparent);} 100%{background:transparent;} }
+
+  /* copilot */
+  .copilot { margin-bottom:14px; padding:6px 8px 12px; }
+  .cp-head { display:flex; align-items:center; gap:8px; padding:10px 10px 4px; }
+  .cp-head .ai { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:linear-gradient(135deg,var(--series-1),#7c5cff); color:#fff; font-size:14px; }
+  .cp-head h2 { font-size:13px; margin:0; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
+  .cp-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:10px; padding:6px 8px 4px; }
+  .insight { border:1px solid var(--border); border-radius:11px; padding:11px 12px; background:var(--surface-1); border-left-width:3px; }
+  .insight.critical { border-left-color:var(--critical); } .insight.serious { border-left-color:var(--serious); }
+  .insight.warning { border-left-color:var(--warning); } .insight.info { border-left-color:var(--series-1); }
+  .insight.good { border-left-color:var(--income); }
+  .insight .it { font-weight:650; font-size:13.5px; display:flex; gap:7px; align-items:center; margin-bottom:3px; }
+  .insight .ib { font-size:12.8px; color:var(--text-2); line-height:1.5; }
+
+  .cols { display:grid; grid-template-columns:1.15fr 1fr; gap:14px; align-items:start; }
+  .feed-controls { display:flex; gap:6px; margin-left:auto; }
+  .seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .seg button { font:inherit; font-size:12px; font-weight:600; border:0; background:var(--surface-1); color:var(--text-2); padding:5px 10px; cursor:pointer; }
+  .seg button[aria-pressed="true"] { background:var(--chip); color:var(--text-1); }
+  .feed { list-style:none; margin:10px 0 0; padding:6px 8px 10px; max-height:520px; overflow-y:auto; }
+  .tx { display:grid; grid-template-columns:34px 1fr auto; gap:11px; align-items:center; padding:10px 8px; border-radius:10px; }
+  .tx + .tx { border-top:1px solid var(--grid); }
+  .tx.enter { animation:slidein .5s cubic-bezier(.2,.7,.2,1); }
+  @keyframes slidein { from{opacity:0; transform:translateY(-10px); background:var(--series-1-soft);} to{opacity:1; transform:none;} }
+  .tx .ic { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; font-size:16px; background:var(--chip); }
+  .tx .name { font-weight:600; font-size:14px; }
+  .tx .cat { font-size:12px; color:var(--muted); }
+  .tx .right { text-align:right; }
+  .tx .amt { font-weight:650; font-variant-numeric:tabular-nums; font-size:14.5px; }
+  .tx .amt.in { color:var(--income-ink); }
+  .tx .acct { font-size:11px; color:var(--muted); }
+  .tx .time { font-size:11px; color:var(--muted); }
+
+  .cal-nav { display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .cal-nav button { font:inherit; font-size:14px; line-height:1; background:var(--surface-1); border:1px solid var(--border); border-radius:8px; width:28px; height:28px; cursor:pointer; color:var(--text-1); }
+  .cal-nav .m { font-size:13px; font-weight:600; min-width:120px; text-align:center; }
+  .cal { padding:12px 14px 16px; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .cal-dow { font-size:11px; font-weight:700; color:var(--muted); text-align:center; padding:2px 0 4px; text-transform:uppercase; letter-spacing:.04em; }
+  .day { position:relative; min-height:66px; border:1px solid var(--grid); border-radius:9px; padding:5px 6px; background:var(--surface-1); overflow:hidden; }
+  .day.pad { background:transparent; border-color:transparent; }
+  .day .num { font-size:12px; color:var(--text-2); font-variant-numeric:tabular-nums; }
+  .day.today { border-color:var(--series-1); box-shadow:inset 0 0 0 1px var(--series-1); }
+  .day.today .num { color:var(--series-1); font-weight:700; }
+  .day.past { opacity:.5; }
+  .badge { display:block; font-size:10.5px; font-weight:600; line-height:1.35; padding:1px 5px; border-radius:5px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .badge.pay { background:color-mix(in srgb,var(--income) 15%,transparent); color:var(--income-ink); }
+  .badge.due { background:color-mix(in srgb,var(--warning) 22%,transparent); color:#7a5500; }
+  :root[data-theme="dark"] .badge.due { color:#f6c453; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .badge.due { color:#f6c453; } }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:12px; color:var(--text-2); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .sw { width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  .need { padding:12px 16px 16px; }
+  .need table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .need th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; padding:6px 4px; border-bottom:1px solid var(--grid); }
+  .need td { padding:8px 4px; border-bottom:1px solid var(--grid); font-variant-numeric:tabular-nums; }
+  .need td.r, .need th.r { text-align:right; }
+  .need tr:last-child td { border-bottom:0; }
+  .need .obl { font-weight:600; }
+  .need .amt { color:var(--expense); font-weight:600; }
+  .callout { margin-top:12px; padding:12px 14px; border-radius:11px; font-size:13.5px; display:flex; gap:10px; align-items:flex-start; }
+  .callout .cico { font-size:18px; line-height:1.2; }
+  .callout.ok { background:color-mix(in srgb,var(--income) 12%,transparent); color:var(--income-ink); }
+  .callout.warn { background:color-mix(in srgb,var(--warning) 20%,transparent); color:#7a5500; }
+  :root[data-theme="dark"] .callout.warn { color:#f6c453; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .callout.warn { color:#f6c453; } }
+  .callout.bad { background:color-mix(in srgb,var(--expense) 14%,transparent); color:var(--expense); }
+  .callout b { font-variant-numeric:tabular-nums; }
+
+  .chart { padding:8px 10px 14px; }
+  .chart svg { width:100%; height:auto; display:block; overflow:visible; }
+  .chart .axl { fill:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; }
+  .tip { position:fixed; pointer-events:none; z-index:50; background:var(--surface-1); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:9px; padding:8px 10px; font-size:12.5px; color:var(--text-1); opacity:0; transition:opacity .1s; max-width:230px; }
+  .tip .tt-d { color:var(--muted); font-size:11px; margin-bottom:3px; }
+  .tip .tt-r { display:flex; justify-content:space-between; gap:14px; font-variant-numeric:tabular-nums; }
+  .foot { margin-top:26px; font-size:12px; color:var(--muted); line-height:1.7; }
+  .foot code { background:var(--chip); padding:1px 5px; border-radius:4px; font-size:11.5px; }
+
+  @media (max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr);} .cols{grid-template-columns:1fr;} }
+  @media (max-width:480px){ .day{min-height:56px;} .kpi .value{font-size:22px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="app">
+    <h1>Financial Dashboard</h1>
+    <span class="live-pill" id="livePill"><span class="dot"></span><span id="liveTxt">Live</span></span>
+    <span class="src" id="srcTxt"></span>
+    <div class="spacer"></div>
+    <span class="clock" id="clock"></span>
+    <button class="btn" id="refreshBtn" title="Re-read finance-data.json">↻ Refresh</button>
+    <button class="btn" id="themeBtn" title="Toggle theme">🌗 Theme</button>
+  </header>
+
+  <section class="kpis">
+    <div class="card kpi" id="kpiBalance">
+      <div class="label">💵 Cash on hand</div>
+      <div class="value" id="balVal">—</div>
+      <div class="meta" id="balMeta">across checking</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">📅 Next payday</div>
+      <div class="value" id="payVal">—</div>
+      <div class="meta good" id="payMeta">—</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">🧾 Needed before payday</div>
+      <div class="value" id="needVal">—</div>
+      <div class="meta" id="needMeta">—</div>
+    </div>
+    <div class="card kpi" id="kpiSafe">
+      <div class="label">✅ Safe to spend</div>
+      <div class="value" id="safeVal">—</div>
+      <div class="meta" id="safeMeta">after upcoming bills</div>
+    </div>
+  </section>
+
+  <!-- AI Copilot -->
+  <div class="card copilot">
+    <div class="cp-head"><span class="ai">✨</span><h2>Financial Copilot</h2><span class="sub" id="cpSub" style="margin-left:auto;font-size:12px;color:var(--muted)"></span></div>
+    <div class="cp-list" id="cpList"></div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <div class="card-h">
+        <h2>Realtime transactions</h2>
+        <div class="feed-controls">
+          <div class="seg" role="group" aria-label="Filter feed">
+            <button data-f="all" aria-pressed="true">All</button>
+            <button data-f="out">Spending</button>
+            <button data-f="in">Income</button>
+          </div>
+          <button class="btn" id="pauseBtn" style="padding:5px 10px;">⏸ Pause</button>
+        </div>
+      </div>
+      <ul class="feed" id="feed"></ul>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div class="card">
+        <div class="card-h">
+          <h2>Pay &amp; bills calendar</h2>
+          <div class="cal-nav">
+            <button id="prevM" aria-label="Previous month">‹</button>
+            <span class="m" id="calMonth">—</span>
+            <button id="nextM" aria-label="Next month">›</button>
+          </div>
+        </div>
+        <div class="cal">
+          <div class="cal-grid" id="dowRow"></div>
+          <div class="cal-grid" id="calGrid" style="margin-top:5px;"></div>
+          <div class="legend">
+            <span><i class="sw" style="background:var(--income)"></i> Payday (income)</span>
+            <span><i class="sw" style="background:var(--warning)"></i> Bill due — needed by</span>
+            <span><i class="sw" style="background:var(--series-1)"></i> Today</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>Needed &amp; by what day</h2><span class="sub" id="needWindow"></span></div>
+        <div class="need" id="needPanel"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="card-h"><h2>Balance projection</h2><span class="sub">from today’s cash through scheduled pay &amp; bills</span></div>
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <p class="foot">
+    Data synced from <b>Era Context</b> (snapshot <span id="asOf"></span>). The feed is realtime-ready: it
+    re-reads <code>finance-data.json</code> every 20s and animates any newly added transactions. To keep it
+    current, regenerate <code>finance-data.json</code> from Era (via the Claude/Era copilot or a scheduled job).
+    Edit <code>income</code>, <code>bills</code>, and <code>oneOffs</code> in that file to tune the calendar and projection.
+  </p>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<!-- Embedded fallback so the page works when opened directly (file://), where fetch() is blocked -->
+<script type="application/json" id="embedded-data">
+{
+  "as_of": "2026-07-13", "source": "Era Context", "currency": "USD",
+  "operatingBalance": 1880.27, "safetyBuffer": 300,
+  "summary": { "netWorth": -25966.25, "totalCash": 1880.27, "totalDebt": 27860.47, "monthLabel": "Jul 1–13, 2026", "monthIncome": 4321.14, "monthSpending": 5412.04, "monthNet": -1090.90, "lastMonthNet": 575.80 },
+  "income": [ { "name": "Charles R Drew (paycheck)", "icon": "🏥", "amount": 2379.48, "dom": 10 }, { "name": "VA / DFAS", "icon": "🎖️", "amount": 1018.33, "dom": 1 } ],
+  "bills": [
+    { "name": "Rent", "icon": "🏠", "amount": 1434.95, "dom": 1 },
+    { "name": "T-Mobile", "icon": "📱", "amount": 289.50, "dom": 26 },
+    { "name": "Discover payment", "icon": "💳", "amount": 242.90, "dom": 2 },
+    { "name": "Mercury Insurance", "icon": "🛡️", "amount": 136.37, "dom": 3 },
+    { "name": "American Express", "icon": "💳", "amount": 85.27, "dom": 25 },
+    { "name": "Affirm", "icon": "🧾", "amount": 83.94, "dom": 8 },
+    { "name": "Acorns", "icon": "🌰", "amount": 25.00, "dom": 8 },
+    { "name": "US Bank fee", "icon": "🏦", "amount": 17.91, "dom": 17 },
+    { "name": "Spotify", "icon": "🎧", "amount": 12.99, "dom": 6 },
+    { "name": "Kindle Unlimited", "icon": "📖", "amount": 11.99, "dom": 8 }
+  ],
+  "oneOffs": [ { "name": "Car payment (HMF)", "icon": "🚗", "amount": 596.59, "date": "2026-09-15", "type": "bill" } ],
+  "transactions": [
+    { "name": "Charles R Drew", "cat": "Paycheck", "icon": "🏥", "amount": 2379.48, "income": true, "account": "Home Bills", "ts": "2026-07-10T09:02:00" },
+    { "name": "Zelle → Armen Gharibian", "cat": "Transfer", "icon": "🔁", "amount": 240.00, "income": false, "account": "Home Bills", "ts": "2026-07-10T14:20:00" },
+    { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-10T08:15:00" },
+    { "name": "Capital One — Interest Charge", "cat": "Fees", "icon": "💳", "amount": 145.38, "income": false, "account": "Quicksilver", "ts": "2026-07-09T23:40:00" },
+    { "name": "The Coffee Bean & Tea Leaf", "cat": "Coffee", "icon": "☕", "amount": 7.99, "income": false, "account": "Credit Card - 2080", "ts": "2026-07-09T10:12:00" },
+    { "name": "Kindle Unlimited", "cat": "Subscription", "icon": "📖", "amount": 11.99, "income": false, "account": "Home Bills", "ts": "2026-07-08T21:05:00" },
+    { "name": "Affirm", "cat": "Loan", "icon": "🧾", "amount": 83.94, "income": false, "account": "Home Bills", "ts": "2026-07-08T12:30:00" },
+    { "name": "Acorns", "cat": "Investing", "icon": "🌰", "amount": 25.00, "income": false, "account": "Home Bills", "ts": "2026-07-08T12:28:00" },
+    { "name": "Roam Research", "cat": "Software", "icon": "🧠", "amount": 15.00, "income": false, "account": "Home Bills", "ts": "2026-07-08T07:50:00" },
+    { "name": "Zelle → Venice Psychic", "cat": "Misc", "icon": "🔮", "amount": 85.00, "income": false, "account": "Home Bills", "ts": "2026-07-07T18:44:00" },
+    { "name": "Amazon", "cat": "Shopping", "icon": "📦", "amount": 48.15, "income": false, "account": "Home Bills", "ts": "2026-07-07T16:22:00" },
+    { "name": "Adobe", "cat": "Software", "icon": "🎨", "amount": 21.24, "income": false, "account": "Home Bills", "ts": "2026-07-07T15:10:00" },
+    { "name": "ChargePoint", "cat": "EV charging", "icon": "🔌", "amount": 11.97, "income": false, "account": "Home Bills", "ts": "2026-07-07T13:05:00" },
+    { "name": "Tierra Mia Coffee", "cat": "Coffee", "icon": "☕", "amount": 5.75, "income": false, "account": "Home Bills", "ts": "2026-07-07T09:18:00" }
+  ],
+  "copilot": [
+    { "level": "critical", "icon": "🚨", "title": "Overdraft cascade on Home Bills", "body": "US Bank hit you with repeated $36 overdraft fees on Jul 9–10. Available balance is only $1,168. Keep a $300 cushion and move discretionary spend to a card you pay off to stop the fee bleed." },
+    { "level": "serious", "icon": "🔥", "title": "$27,860 in card debt is compounding", "body": "Four cards carry balances; Capital One alone charged $145.38 in interest this month. Net worth sits at −$25,966. Any spare cash is worth more against the Quicksilver balance than in checking." },
+    { "level": "warning", "icon": "⚠️", "title": "Spending is outpacing income", "body": "Jul 1–13: +$4,321 in vs −$5,412 out = −$1,091 net. Last month you finished +$576. Trim ~$1,100 of variable spend to get back to flat." },
+    { "level": "info", "icon": "🔁", "title": "~$150/mo in recurring software", "body": "Spotify, Kindle, Adobe, Roam and Acorns add up to roughly $150/month. Cutting two rarely-used ones frees ~$40/month with no lifestyle hit." }
+  ]
+}
+</script>
+
+<script>
+"use strict";
+let DATA = null;
+let balance = 0;
+const seenTx = new Set();
+
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_MS = 86400000;
+let fmt0, fmt2;
+
+function txKey(t){ return `${t.ts}|${t.name}|${t.amount}`; }
+function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function daysBetween(a,b){ return Math.round((startOfDay(b)-startOfDay(a))/DAY_MS); }
+function ymd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function parseTs(s){ return new Date(s); }
+function relDay(d){ const n=daysBetween(new Date(),d); if(n===0)return"today"; if(n===1)return"tomorrow"; if(n<0)return`${-n}d ago`; return`in ${n} days`; }
+function clampDom(y,m,dom){ const dim=new Date(y,m+1,0).getDate(); return Math.min(dom,dim); }
+
+/* ---- schedule expansion from monthly income/bills + dated one-offs ---- */
+function incomeEventsBetween(from,to){
+  const out=[]; let cur=new Date(from.getFullYear(),from.getMonth(),1);
+  const end=new Date(to.getFullYear(),to.getMonth()+1,1);
+  while(cur<end){ const y=cur.getFullYear(),m=cur.getMonth();
+    for(const s of (DATA.income||[])){ const d=startOfDay(new Date(y,m,clampDom(y,m,s.dom)));
+      if(d>=startOfDay(from)&&d<=startOfDay(to)) out.push({date:d,...s}); }
+    cur=new Date(y,m+1,1); }
+  out.sort((a,b)=>a.date-b.date); return out;
+}
+function billsBetween(from,to){
+  const out=[]; let cur=new Date(from.getFullYear(),from.getMonth(),1);
+  const end=new Date(to.getFullYear(),to.getMonth()+1,1);
+  while(cur<end){ const y=cur.getFullYear(),m=cur.getMonth();
+    for(const b of (DATA.bills||[])){ const d=startOfDay(new Date(y,m,clampDom(y,m,b.dom)));
+      if(d>=startOfDay(from)&&d<=startOfDay(to)) out.push({date:d,...b}); }
+    cur=new Date(y,m+1,1); }
+  for(const o of (DATA.oneOffs||[])){ if((o.type||"bill")!=="bill") continue;
+    const d=startOfDay(new Date(o.date+"T00:00:00"));
+    if(d>=startOfDay(from)&&d<=startOfDay(to)) out.push({date:d,...o}); }
+  out.sort((a,b)=>a.date-b.date); return out;
+}
+function nextIncome(from){ const evs=incomeEventsBetween(from,addDays(from,90)).filter(e=>e.date>=startOfDay(from)); return evs[0]||null; }
+
+/* ===================== feed ===================== */
+let feedFilter="all", paused=false;
+const feedEl=()=>document.getElementById("feed");
+
+function renderTx(t,animate){
+  const li=document.createElement("li");
+  li.className="tx"+(animate?" enter":"");
+  li.dataset.kind=t.income?"in":"out";
+  if(feedFilter!=="all"&&feedFilter!==li.dataset.kind) li.style.display="none";
+  const sign=t.income?"+":"−";
+  const d=parseTs(t.ts);
+  const time=d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  li.innerHTML=`
+    <span class="ic">${t.icon||"💳"}</span>
+    <span>
+      <div class="name">${t.name}</div>
+      <div class="cat">${t.cat||""} · <span class="time">${time}</span></div>
+    </span>
+    <span class="right">
+      <div class="amt ${t.income?"in":"out"}">${sign}${fmt2.format(t.amount)}</div>
+      <div class="acct">${t.account||""}</div>
+    </span>`;
+  return li;
+}
+function sortedTx(list){ return [...list].sort((a,b)=>parseTs(b.ts)-parseTs(a.ts)); }
+
+function initialFeed(){
+  const el=feedEl(); el.innerHTML="";
+  for(const t of sortedTx(DATA.transactions||[])){ seenTx.add(txKey(t)); el.appendChild(renderTx(t,false)); }
+}
+function ingestNew(txs){
+  const el=feedEl(); const fresh=sortedTx(txs.filter(t=>!seenTx.has(txKey(t))));
+  // prepend newest-first; apply oldest of the fresh batch first so order is right
+  for(let i=fresh.length-1;i>=0;i--){ const t=fresh[i]; seenTx.add(txKey(t));
+    el.prepend(renderTx(t,true));
+    balance+=t.income?t.amount:-t.amount;
+  }
+  while(el.children.length>60) el.removeChild(el.lastChild);
+  if(fresh.length){ updateBalanceKPI(true); refreshDerived(); }
+}
+
+/* ===================== KPIs ===================== */
+function updateBalanceKPI(flash){
+  document.getElementById("balVal").textContent=fmt2.format(balance);
+  if(flash){ const c=document.getElementById("kpiBalance"); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); }
+  const below=balance<DATA.safetyBuffer;
+  const m=document.getElementById("balMeta");
+  m.textContent=below?"below safety buffer":"across checking accounts";
+  m.className="meta "+(below?"bad":"");
+}
+function refreshDerived(){
+  const today=startOfDay(new Date());
+  const ni=nextIncome(today);
+  if(ni){
+    document.getElementById("payVal").textContent=fmt0.format(ni.amount);
+    document.getElementById("payMeta").textContent=`${ni.icon} ${DOW[ni.date.getDay()]} ${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()} · ${relDay(ni.date)}`;
+  }
+  const horizonEnd=ni?ni.date:addDays(today,30);
+  const due=billsBetween(today,horizonEnd).filter(b=>b.date>=today&&b.date<=horizonEnd);
+  const totalNeeded=due.reduce((s,b)=>s+b.amount,0);
+  document.getElementById("needVal").textContent=fmt0.format(totalNeeded);
+  document.getElementById("needMeta").textContent=`${due.length} bill${due.length!==1?"s":""}${ni?` before ${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:""}`;
+
+  const safe=balance-totalNeeded-DATA.safetyBuffer;
+  document.getElementById("safeVal").textContent=fmt2.format(Math.max(0,safe));
+  const sm=document.getElementById("safeMeta");
+  if(safe>=0){ sm.textContent="after upcoming bills + buffer"; sm.className="meta good"; }
+  else { sm.textContent=`short ${fmt0.format(-safe)} before payday`; sm.className="meta bad"; }
+  const sv=document.getElementById("safeVal"); sv.classList.toggle("neg",safe<0);
+
+  renderNeeded(today,ni,due,totalNeeded);
+  renderChart();
+}
+
+/* ===================== needed & by what day ===================== */
+function renderNeeded(today,ni,due,totalNeeded){
+  document.getElementById("needWindow").textContent = ni?`through ${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:"";
+  const panel=document.getElementById("needPanel");
+  let running=balance, firstShort=null;
+  const rows=due.map(b=>{ running-=b.amount; if(running<DATA.safetyBuffer&&!firstShort) firstShort=b.date;
+    return `<tr>
+      <td class="obl">${b.icon||"🧾"} ${b.name}</td>
+      <td>${DOW[b.date.getDay()]} ${MON[b.date.getMonth()].slice(0,3)} ${b.date.getDate()} <span style="color:var(--muted)">· ${relDay(b.date)}</span></td>
+      <td class="r amt">−${fmt0.format(b.amount)}</td>
+      <td class="r" style="color:${running<DATA.safetyBuffer?'var(--expense)':'var(--text-2)'}">${fmt0.format(running)}</td>
+    </tr>`; }).join("");
+  panel.innerHTML=`<table>
+    <thead><tr><th>Obligation</th><th>Needed by</th><th class="r">Amount</th><th class="r">Balance after</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="4" style="color:var(--muted)">No bills before next payday. 🎉</td></tr>`}</tbody></table>`;
+
+  const shortfall=DATA.safetyBuffer-(balance-totalNeeded);
+  const c=document.createElement("div");
+  if(totalNeeded===0){ c.className="callout ok"; c.innerHTML=`<span class="cico">✅</span><span>Nothing due before your next paycheck — all clear.</span>`; }
+  else if(shortfall>0&&firstShort){ c.className="callout bad"; c.innerHTML=`<span class="cico">⚠️</span><span>You’ll dip below your ${fmt0.format(DATA.safetyBuffer)} buffer around <b>${MON[firstShort.getMonth()].slice(0,3)} ${firstShort.getDate()}</b>. Add about <b>${fmt0.format(Math.ceil(shortfall/10)*10)}</b> before then to stay safe.</span>`; }
+  else if(balance-totalNeeded-DATA.safetyBuffer<200){ c.className="callout warn"; c.innerHTML=`<span class="cico">🟡</span><span>Cutting it close: about <b>${fmt0.format(balance-totalNeeded)}</b> left when the last bill clears. Keep discretionary spending light.</span>`; }
+  else { c.className="callout ok"; c.innerHTML=`<span class="cico">✅</span><span>On track — after ${fmt0.format(totalNeeded)} in bills you’ll still hold <b>${fmt0.format(balance-totalNeeded)}</b> before payday.</span>`; }
+  panel.appendChild(c);
+}
+
+/* ===================== copilot panel ===================== */
+function renderCopilot(){
+  const list=document.getElementById("cpList"); list.innerHTML="";
+  const today=startOfDay(new Date());
+  const ni=nextIncome(today);
+  const due=ni?billsBetween(today,ni.date).filter(b=>b.date>=today&&b.date<=ni.date):[];
+  const totalNeeded=due.reduce((s,b)=>s+b.amount,0);
+  const safe=balance-totalNeeded-DATA.safetyBuffer;
+
+  // dynamic, computed insight first
+  const dyn = safe>=0
+    ? { level:"good", icon:"🟢", title:`Safe to spend ${fmt0.format(Math.max(0,safe))}`, body:`After ${fmt0.format(totalNeeded)} of bills due before ${ni?`${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:"payday"} and a ${fmt0.format(DATA.safetyBuffer)} cushion, that’s what’s truly discretionary right now.` }
+    : { level:"critical", icon:"⛔", title:`Projected ${fmt0.format(-safe)} short before payday`, body:`${fmt0.format(totalNeeded)} in bills are due before your next deposit but cash on hand can’t cover them plus the ${fmt0.format(DATA.safetyBuffer)} buffer. Delay non-essentials or move money in.` };
+  const items=[dyn,...(DATA.copilot||[])];
+
+  document.getElementById("cpSub").textContent=`${items.length} insights · from your Era snapshot`;
+  for(const it of items){
+    const d=document.createElement("div");
+    d.className="insight "+(it.level||"info");
+    d.innerHTML=`<div class="it">${it.icon||"•"} ${it.title}</div><div class="ib">${it.body}</div>`;
+    list.appendChild(d);
+  }
+}
+
+/* ===================== projection ===================== */
+function buildProjection(){
+  const today=startOfDay(new Date()); const horizon=60; const end=addDays(today,horizon);
+  const pays=incomeEventsBetween(today,end).filter(e=>e.date>=today);
+  const bills=billsBetween(today,end).filter(b=>b.date>=today);
+  const ev=new Map(); const add=(d,x)=>{const k=ymd(d); ev.set(k,(ev.get(k)||0)+x);};
+  pays.forEach(p=>add(p.date,p.amount)); bills.forEach(b=>add(b.date,-b.amount));
+  const pts=[]; let bal=balance;
+  for(let i=0;i<=horizon;i++){ const d=addDays(today,i); bal+=(ev.get(ymd(d))||0); pts.push({d,bal}); }
+  return {pts,pays,bills};
+}
+function renderChart(){
+  const {pts,pays,bills}=buildProjection();
+  const host=document.getElementById("chart");
+  const W=1000,H=300,m={t:18,r:16,b:28,l:56}; const iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const xs=i=>m.l+(i/(pts.length-1))*iw;
+  const lo=Math.min(0,...pts.map(p=>p.bal)); const hi=Math.max(...pts.map(p=>p.bal),DATA.safetyBuffer);
+  const pad=(hi-lo)*0.08||100; const y0=lo-pad,y1=hi+pad; const ys=v=>m.t+(1-(v-y0)/(y1-y0))*ih;
+  const line=pts.map((p,i)=>`${i?"L":"M"}${xs(i).toFixed(1)},${ys(p.bal).toFixed(1)}`).join(" ");
+  const area=`${line} L${xs(pts.length-1).toFixed(1)},${ys(y0).toFixed(1)} L${xs(0).toFixed(1)},${ys(y0).toFixed(1)} Z`;
+  let grid="",labels=""; const ticks=4;
+  for(let i=0;i<=ticks;i++){ const v=y0+(i/ticks)*(y1-y0); const y=ys(v);
+    grid+=`<line x1="${m.l}" y1="${y.toFixed(1)}" x2="${W-m.r}" y2="${y.toFixed(1)}" stroke="var(--grid)" stroke-width="1"/>`;
+    labels+=`<text class="axl" x="${m.l-8}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${fmt0.format(v)}</text>`; }
+  const zeroY=ys(0),bufY=ys(DATA.safetyBuffer);
+  const zeroLine=(0>=y0&&0<=y1)?`<line x1="${m.l}" y1="${zeroY.toFixed(1)}" x2="${W-m.r}" y2="${zeroY.toFixed(1)}" stroke="var(--expense)" stroke-width="1.5" stroke-dasharray="2 3"/>`:"";
+  const bufLine=`<line x1="${m.l}" y1="${bufY.toFixed(1)}" x2="${W-m.r}" y2="${bufY.toFixed(1)}" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="2 3"/>
+    <text class="axl" x="${W-m.r}" y="${(bufY-5).toFixed(1)}" text-anchor="end" fill="var(--warning)">buffer ${fmt0.format(DATA.safetyBuffer)}</text>`;
+  let xlab=""; for(let i=0;i<pts.length;i+=7){ const d=pts[i].d; xlab+=`<text class="axl" x="${xs(i).toFixed(1)}" y="${H-8}" text-anchor="middle">${MON[d.getMonth()].slice(0,3)} ${d.getDate()}</text>`; }
+  const idxOf=d=>daysBetween(startOfDay(new Date()),d);
+  let marks="";
+  pays.forEach(p=>{ const i=idxOf(p.date); if(i<0||i>=pts.length)return; marks+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(pts[i].bal).toFixed(1)}" r="5" fill="var(--income)" stroke="var(--surface-1)" stroke-width="2"/>`; });
+  const billByDay=new Map(); bills.forEach(b=>{ const i=idxOf(b.date); if(i<0||i>=pts.length)return; billByDay.set(i,(billByDay.get(i)||0)+b.amount); });
+  billByDay.forEach((amt,i)=>{ marks+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(pts[i].bal).toFixed(1)}" r="4.5" fill="var(--warning)" stroke="var(--surface-1)" stroke-width="2"/>`; });
+  let lowI=0; pts.forEach((p,i)=>{ if(p.bal<pts[lowI].bal) lowI=i; });
+  const lowLabel=`<circle cx="${xs(lowI).toFixed(1)}" cy="${ys(pts[lowI].bal).toFixed(1)}" r="4" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2"/>
+    <text class="axl" x="${xs(lowI).toFixed(1)}" y="${(ys(pts[lowI].bal)+(pts[lowI].bal>y0+(y1-y0)*0.3?18:-10)).toFixed(1)}" text-anchor="middle" fill="var(--series-1)" font-weight="700">low ${fmt0.format(pts[lowI].bal)}</text>`;
+  host.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected balance over the next 60 days">
+      ${grid}${labels}<path d="${area}" fill="var(--series-1-soft)"/>${zeroLine}${bufLine}
+      <path d="${line}" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${marks}${lowLabel}${xlab}
+      <line id="cross" x1="0" y1="${m.t}" x2="0" y2="${m.t+ih}" stroke="var(--baseline)" stroke-width="1" opacity="0"/>
+      <rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+  const svg=host.querySelector("svg"),hit=host.querySelector("#hit"),cross=host.querySelector("#cross"),tip=document.getElementById("tip");
+  const evName=d=>{ const p=[]; pays.forEach(x=>{if(ymd(x.date)===ymd(d))p.push(`${x.name} +${fmt0.format(x.amount)}`);}); bills.forEach(b=>{if(ymd(b.date)===ymd(d))p.push(`${b.name} −${fmt0.format(b.amount)}`);}); return p; };
+  hit.addEventListener("mousemove",e=>{ const r=svg.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width*W;
+    let i=Math.round((px-m.l)/iw*(pts.length-1)); i=Math.max(0,Math.min(pts.length-1,i));
+    const cx=xs(i); cross.setAttribute("x1",cx); cross.setAttribute("x2",cx); cross.setAttribute("opacity","1");
+    const p=pts[i],evs=evName(p.d);
+    tip.style.opacity="1"; tip.style.left=Math.min(e.clientX+14,window.innerWidth-242)+"px"; tip.style.top=(e.clientY-10)+"px";
+    tip.innerHTML=`<div class="tt-d">${DOW[p.d.getDay()]} ${MON[p.d.getMonth()].slice(0,3)} ${p.d.getDate()} · ${relDay(p.d)}</div>
+      <div class="tt-r"><span>Projected</span><b>${fmt0.format(p.bal)}</b></div>`+(evs.length?evs.map(x=>`<div class="tt-r" style="color:var(--muted)">${x}</div>`).join(""):""); });
+  hit.addEventListener("mouseleave",()=>{ cross.setAttribute("opacity","0"); tip.style.opacity="0"; });
+}
+
+/* ===================== calendar ===================== */
+let calYear,calMonth;
+function initCal(){ const n=new Date(); calYear=n.getFullYear(); calMonth=n.getMonth(); }
+function renderDow(){ document.getElementById("dowRow").innerHTML=DOW.map(d=>`<div class="cal-dow">${d}</div>`).join(""); }
+function renderCal(){
+  document.getElementById("calMonth").textContent=`${MON[calMonth]} ${calYear}`;
+  const grid=document.getElementById("calGrid");
+  const first=new Date(calYear,calMonth,1); const dim=new Date(calYear,calMonth+1,0).getDate(); const lead=first.getDay();
+  const today=startOfDay(new Date());
+  const mStart=new Date(calYear,calMonth,1),mEnd=new Date(calYear,calMonth,dim);
+  const paysByDay={}; incomeEventsBetween(mStart,mEnd).forEach(e=>{ (paysByDay[e.date.getDate()]||=[]).push(e); });
+  const billsByDay={}; billsBetween(mStart,mEnd).forEach(b=>{ (billsByDay[b.date.getDate()]||=[]).push(b); });
+  let cells="";
+  for(let i=0;i<lead;i++) cells+=`<div class="day pad"></div>`;
+  for(let day=1;day<=dim;day++){
+    const d=startOfDay(new Date(calYear,calMonth,day));
+    const isToday=d.getTime()===today.getTime(); const isPast=d<today;
+    let badges="";
+    (paysByDay[day]||[]).forEach(e=>{ badges+=`<span class="badge pay" title="${e.name}">+${fmt0.format(e.amount)} pay</span>`; });
+    (billsByDay[day]||[]).forEach(b=>{ badges+=`<span class="badge due" title="${b.name}">${b.icon||"🧾"} −${fmt0.format(b.amount)}</span>`; });
+    cells+=`<div class="day ${isToday?"today":""} ${isPast?"past":""}"><div class="num">${day}</div>${badges}</div>`;
+  }
+  grid.innerHTML=cells;
+}
+
+/* ===================== data loading + wiring ===================== */
+function applyData(d,{animateNew=false}={}){
+  const firstLoad=DATA===null;
+  DATA=d;
+  fmt0=new Intl.NumberFormat("en-US",{style:"currency",currency:DATA.currency||"USD",maximumFractionDigits:0});
+  fmt2=new Intl.NumberFormat("en-US",{style:"currency",currency:DATA.currency||"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById("srcTxt").textContent=`· ${DATA.source||"data"} · as of ${DATA.as_of||""}`;
+  document.getElementById("asOf").textContent=DATA.as_of||"";
+  if(firstLoad){
+    balance=DATA.operatingBalance||0;
+    initialFeed();
+  } else if(animateNew){
+    ingestNew(DATA.transactions||[]);
+  }
+  updateBalanceKPI(false);
+  renderCopilot();
+  refreshDerived();
+  renderCal();
+}
+async function loadData(){
+  try{
+    const res=await fetch("finance-data.json",{cache:"no-store"});
+    if(res.ok) return await res.json();
+  }catch(e){/* file:// or missing — fall back */}
+  return JSON.parse(document.getElementById("embedded-data").textContent);
+}
+async function poll(){
+  if(paused) return;
+  try{
+    const res=await fetch("finance-data.json",{cache:"no-store"});
+    if(res.ok){ const d=await res.json(); applyData(d,{animateNew:true}); }
+  }catch(e){/* ignore */}
+}
+
+function setTheme(t){ document.documentElement.setAttribute("data-theme",t); try{localStorage.setItem("fin-theme",t);}catch(e){} renderChart(); }
+function clock(){ const n=new Date();
+  document.getElementById("clock").textContent=n.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+" · "+n.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit"}); }
+
+function wire(){
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+    setTheme(cur==="dark"?"light":"dark"); });
+  document.getElementById("refreshBtn").addEventListener("click",poll);
+  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); feedFilter=b.dataset.f;
+    [...feedEl().children].forEach(li=>{ li.style.display=(feedFilter==="all"||li.dataset.kind===feedFilter)?"":"none"; }); }));
+  document.getElementById("pauseBtn").addEventListener("click",()=>{
+    paused=!paused; document.getElementById("pauseBtn").textContent=paused?"▶ Resume":"⏸ Pause";
+    const pill=document.getElementById("livePill"); pill.classList.toggle("paused",paused);
+    document.getElementById("liveTxt").textContent=paused?"Paused":"Live"; });
+  document.getElementById("prevM").addEventListener("click",()=>{ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCal(); });
+  document.getElementById("nextM").addEventListener("click",()=>{ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); });
+  window.addEventListener("resize",()=>{ clearTimeout(window._rz); window._rz=setTimeout(renderChart,120); });
+}
+
+(async function init(){
+  try{ const t=localStorage.getItem("fin-theme"); if(t) document.documentElement.setAttribute("data-theme",t); }catch(e){}
+  wire(); renderDow(); initCal();
+  const d=await loadData(); applyData(d);
+  clock(); setInterval(clock,1000);
+  setInterval(poll,20000);
+})();
+</script>
+</body>
+</html>

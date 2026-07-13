@@ -1,0 +1,88 @@
+{
+  "as_of": "2026-07-13",
+  "source": "Era Context",
+  "currency": "USD",
+  "operatingBalance": 1880.27,
+  "safetyBuffer": 300,
+  "summary": {
+    "netWorth": -25966.25,
+    "totalCash": 1880.27,
+    "totalDebt": 27860.47,
+    "monthLabel": "Jul 1–13, 2026",
+    "monthIncome": 4321.14,
+    "monthSpending": 5412.04,
+    "monthNet": -1090.90,
+    "lastMonthNet": 575.80
+  },
+  "accounts": [
+    { "name": "Home Bills", "institution": "U.S. Bank", "type": "Checking", "current": 1767.27, "available": 1168.06 },
+    { "name": "Brooks Jevon", "institution": "U.S. Bank", "type": "Checking", "current": 75.00, "available": 75.00 },
+    { "name": "JH Health Account", "institution": "U.S. Bank", "type": "Checking", "current": 38.00, "available": 38.00 },
+    { "name": "Bitcoin", "institution": "Cash App", "type": "Savings", "current": 13.95 },
+    { "name": "Quicksilver", "institution": "Capital One", "type": "CreditCard", "current": 5942.88 },
+    { "name": "Allyson", "institution": "Discover", "type": "CreditCard", "current": 13386.36 },
+    { "name": "Andrew", "institution": "Discover", "type": "CreditCard", "current": 8044.81 },
+    { "name": "Credit Card - 2080", "institution": "U.S. Bank", "type": "CreditCard", "current": 486.42 }
+  ],
+  "income": [
+    { "name": "Charles R Drew (paycheck)", "icon": "🏥", "amount": 2379.48, "dom": 10 },
+    { "name": "VA / DFAS", "icon": "🎖️", "amount": 1018.33, "dom": 1 }
+  ],
+  "bills": [
+    { "name": "Rent", "icon": "🏠", "amount": 1434.95, "dom": 1, "category": "Rent" },
+    { "name": "T-Mobile", "icon": "📱", "amount": 289.50, "dom": 26, "category": "Utilities" },
+    { "name": "Discover payment", "icon": "💳", "amount": 242.90, "dom": 2, "category": "Card payment" },
+    { "name": "Mercury Insurance", "icon": "🛡️", "amount": 136.37, "dom": 3, "category": "Insurance" },
+    { "name": "American Express", "icon": "💳", "amount": 85.27, "dom": 25, "category": "Card payment" },
+    { "name": "Affirm", "icon": "🧾", "amount": 83.94, "dom": 8, "category": "Loan" },
+    { "name": "Acorns", "icon": "🌰", "amount": 25.00, "dom": 8, "category": "Investing" },
+    { "name": "US Bank fee", "icon": "🏦", "amount": 17.91, "dom": 17, "category": "Fees" },
+    { "name": "Spotify", "icon": "🎧", "amount": 12.99, "dom": 6, "category": "Subscription" },
+    { "name": "Kindle Unlimited", "icon": "📖", "amount": 11.99, "dom": 8, "category": "Subscription" }
+  ],
+  "oneOffs": [
+    { "name": "Car payment (HMF)", "icon": "🚗", "amount": 596.59, "date": "2026-09-15", "type": "bill", "category": "Vehicle" }
+  ],
+  "transactions": [
+    { "name": "Charles R Drew", "cat": "Paycheck", "icon": "🏥", "amount": 2379.48, "income": true, "account": "Home Bills", "ts": "2026-07-10T09:02:00" },
+    { "name": "Zelle → Armen Gharibian", "cat": "Transfer", "icon": "🔁", "amount": 240.00, "income": false, "account": "Home Bills", "ts": "2026-07-10T14:20:00" },
+    { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-10T08:15:00" },
+    { "name": "Capital One — Interest Charge", "cat": "Fees", "icon": "💳", "amount": 145.38, "income": false, "account": "Quicksilver", "ts": "2026-07-09T23:40:00" },
+    { "name": "The Coffee Bean & Tea Leaf", "cat": "Coffee", "icon": "☕", "amount": 7.99, "income": false, "account": "Credit Card - 2080", "ts": "2026-07-09T10:12:00" },
+    { "name": "Kindle Unlimited", "cat": "Subscription", "icon": "📖", "amount": 11.99, "income": false, "account": "Home Bills", "ts": "2026-07-08T21:05:00" },
+    { "name": "Affirm", "cat": "Loan", "icon": "🧾", "amount": 83.94, "income": false, "account": "Home Bills", "ts": "2026-07-08T12:30:00" },
+    { "name": "Acorns", "cat": "Investing", "icon": "🌰", "amount": 25.00, "income": false, "account": "Home Bills", "ts": "2026-07-08T12:28:00" },
+    { "name": "Roam Research", "cat": "Software", "icon": "🧠", "amount": 15.00, "income": false, "account": "Home Bills", "ts": "2026-07-08T07:50:00" },
+    { "name": "Zelle → Venice Psychic", "cat": "Misc", "icon": "🔮", "amount": 85.00, "income": false, "account": "Home Bills", "ts": "2026-07-07T18:44:00" },
+    { "name": "Amazon", "cat": "Shopping", "icon": "📦", "amount": 48.15, "income": false, "account": "Home Bills", "ts": "2026-07-07T16:22:00" },
+    { "name": "Adobe", "cat": "Software", "icon": "🎨", "amount": 21.24, "income": false, "account": "Home Bills", "ts": "2026-07-07T15:10:00" },
+    { "name": "ChargePoint", "cat": "EV charging", "icon": "🔌", "amount": 11.97, "income": false, "account": "Home Bills", "ts": "2026-07-07T13:05:00" },
+    { "name": "Tierra Mia Coffee", "cat": "Coffee", "icon": "☕", "amount": 5.75, "income": false, "account": "Home Bills", "ts": "2026-07-07T09:18:00" }
+  ],
+  "copilot": [
+    {
+      "level": "critical",
+      "icon": "🚨",
+      "title": "Overdraft cascade on Home Bills",
+      "body": "US Bank hit you with repeated $36 overdraft fees on Jul 9–10. Available balance is only $1,168. Keep a $300 cushion and move discretionary spend to a card you pay off to stop the fee bleed."
+    },
+    {
+      "level": "serious",
+      "icon": "🔥",
+      "title": "$27,860 in card debt is compounding",
+      "body": "Four cards carry balances; Capital One alone charged $145.38 in interest this month. Net worth sits at −$25,966. Any spare cash is worth more against the Quicksilver balance than in checking."
+    },
+    {
+      "level": "warning",
+      "icon": "⚠️",
+      "title": "Spending is outpacing income",
+      "body": "Jul 1–13: +$4,321 in vs −$5,412 out = −$1,091 net. Last month you finished +$576. Trim ~$1,100 of variable spend to get back to flat."
+    },
+    {
+      "level": "info",
+      "icon": "🔁",
+      "title": "~$150/mo in recurring software",
+      "body": "Spotify, Kindle, Adobe, Roam and Acorns add up to roughly $150/month. Cutting two rarely-used ones frees ~$40/month with no lifestyle hit."
+    }
+  ]
+}
