@@ -50,6 +50,19 @@
   .btn { font:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-1); background:var(--surface-1);
     border:1px solid var(--border); border-radius:9px; padding:7px 12px; display:inline-flex; align-items:center; gap:6px; }
   .btn:hover { border-color:var(--baseline); } .btn:active { transform:translateY(1px); }
+  .btn.primary { background:var(--series-1); color:#fff; border-color:transparent; }
+  .btn.primary:hover { filter:brightness(1.06); border-color:transparent; }
+  .btn.primary.busy { opacity:.75; cursor:progress; }
+  .btn.primary.ok { background:var(--income); }
+  .ricon { display:inline-block; }
+  .btn.busy .ricon { animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .synced { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .toast { position:fixed; top:14px; left:50%; transform:translateX(-50%) translateY(-24px);
+    background:var(--text-1); color:var(--surface-1); font-size:13px; font-weight:600;
+    padding:8px 16px; border-radius:999px; box-shadow:var(--shadow); opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s; z-index:100; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   .card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
   .card-h { display:flex; align-items:baseline; gap:10px; padding:14px 16px 0; }
@@ -159,9 +172,13 @@
     <span class="src" id="srcTxt"></span>
     <div class="spacer"></div>
     <span class="clock" id="clock"></span>
-    <button class="btn" id="refreshBtn" title="Re-read finance-data.json">↻ Refresh</button>
+    <span class="synced" id="synced" title="Time of last data refresh"></span>
+    <button class="btn primary" id="refreshBtn" title="Re-read finance-data.json for new data">
+      <span class="ricon" id="ricon">↻</span> <span id="rlabel">Update</span>
+    </button>
     <button class="btn" id="themeBtn" title="Toggle theme">🌗 Theme</button>
   </header>
+  <div class="toast" id="toast"></div>
 
   <section class="kpis">
     <div class="card kpi" id="kpiBalance">
@@ -379,6 +396,7 @@ function ingestNew(txs){
   }
   while(el.children.length>60) el.removeChild(el.lastChild);
   if(fresh.length){ updateBalanceKPI(true); refreshDerived(); }
+  return fresh.length;
 }
 
 /* ===================== KPIs ===================== */
@@ -551,16 +569,28 @@ function applyData(d,{animateNew=false}={}){
   fmt2=new Intl.NumberFormat("en-US",{style:"currency",currency:DATA.currency||"USD",minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById("srcTxt").textContent=`· ${DATA.source||"data"} · as of ${DATA.as_of||""}`;
   document.getElementById("asOf").textContent=DATA.as_of||"";
+  let newCount=0;
   if(firstLoad){
     balance=DATA.operatingBalance||0;
     initialFeed();
   } else if(animateNew){
-    ingestNew(DATA.transactions||[]);
+    newCount=ingestNew(DATA.transactions||[])||0;
   }
   updateBalanceKPI(false);
   renderCopilot();
   refreshDerived();
   renderCal();
+  markSynced();
+  return newCount;
+}
+function markSynced(){
+  const n=new Date();
+  const el=document.getElementById("synced");
+  if(el) el.textContent="synced "+n.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+}
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200);
 }
 async function loadData(){
   try{
@@ -576,6 +606,24 @@ async function poll(){
     if(res.ok){ const d=await res.json(); applyData(d,{animateNew:true}); }
   }catch(e){/* ignore */}
 }
+let refreshing=false;
+async function manualRefresh(){
+  if(refreshing) return; refreshing=true;
+  const btn=document.getElementById("refreshBtn"), label=document.getElementById("rlabel");
+  btn.classList.remove("ok"); btn.classList.add("busy"); const prev=label.textContent; label.textContent="Updating…";
+  let count=0, ok=false;
+  try{
+    const res=await fetch("finance-data.json",{cache:"no-store"});
+    if(res.ok){ const d=await res.json(); count=await applyData(d,{animateNew:true})||0; ok=true; }
+  }catch(e){/* file:// or offline */}
+  // guarantee the spinner is visible briefly even on instant local fetches
+  await new Promise(r=>setTimeout(r,450));
+  btn.classList.remove("busy"); label.textContent=prev;
+  if(ok){ btn.classList.add("ok"); setTimeout(()=>btn.classList.remove("ok"),1200);
+    toast(count>0?`↻ Updated — ${count} new transaction${count>1?"s":""}`:"✓ Up to date"); }
+  else { toast("⚠ Couldn’t reach finance-data.json"); markSynced(); }
+  refreshing=false;
+}
 
 function setTheme(t){ document.documentElement.setAttribute("data-theme",t); try{localStorage.setItem("fin-theme",t);}catch(e){} renderChart(); }
 function clock(){ const n=new Date();
@@ -585,7 +633,7 @@ function wire(){
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
     setTheme(cur==="dark"?"light":"dark"); });
-  document.getElementById("refreshBtn").addEventListener("click",poll);
+  document.getElementById("refreshBtn").addEventListener("click",manualRefresh);
   document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
     b.setAttribute("aria-pressed","true"); feedFilter=b.dataset.f;
