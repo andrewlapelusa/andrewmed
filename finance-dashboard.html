@@ -271,44 +271,119 @@
 <!-- Embedded fallback so the page works when opened directly (file://), where fetch() is blocked -->
 <script type="application/json" id="embedded-data">
 {
-  "as_of": "2026-07-16", "source": "Era Context", "currency": "USD",
-  "operatingBalance": -239.38, "safetyBuffer": 300,
-  "summary": { "netWorth": -28085.90, "totalCash": -239.38, "totalDebt": 27860.47, "monthLabel": "Jul 1–16, 2026", "monthIncome": 4321.14, "monthSpending": 7868.53, "monthNet": -3547.39, "lastMonthNet": 577.69 },
-  "income": [ { "name": "Charles R Drew (paycheck)", "icon": "🏥", "amount": 2379.48, "dom": 10 }, { "name": "VA / DFAS", "icon": "🎖️", "amount": 1018.33, "dom": 1 } ],
-  "bills": [
-    { "name": "Rent", "icon": "🏠", "amount": 1434.95, "dom": 1 },
-    { "name": "T-Mobile", "icon": "📱", "amount": 289.50, "dom": 26 },
-    { "name": "Discover payment", "icon": "💳", "amount": 242.90, "dom": 2 },
-    { "name": "USAA Insurance", "icon": "🛡️", "amount": 201.15, "dom": 15 },
-    { "name": "Mercury Insurance", "icon": "🚗", "amount": 136.37, "dom": 3 },
-    { "name": "NEJM (MassMedSoc)", "icon": "📰", "amount": 119.00, "dom": 14 },
-    { "name": "American Express", "icon": "💳", "amount": 85.27, "dom": 25 },
-    { "name": "Affirm", "icon": "🧾", "amount": 83.94, "dom": 8 },
-    { "name": "Acorns", "icon": "🌰", "amount": 25.00, "dom": 15 },
-    { "name": "US Bank fee", "icon": "🏦", "amount": 17.91, "dom": 17 },
-    { "name": "Spotify", "icon": "🎧", "amount": 12.99, "dom": 6 },
-    { "name": "Kindle Unlimited", "icon": "📖", "amount": 11.99, "dom": 8 }
+  "as_of": "2026-07-18",
+  "source": "Era Context",
+  "currency": "USD",
+  "operatingBalance": -559.06,
+  "safetyBuffer": 300,
+  "summary": {
+    "netWorth": -28405.58,
+    "totalCash": -559.06,
+    "totalDebt": 27860.47,
+    "monthLabel": "Jul 1–18, 2026",
+    "monthIncome": 4321.14,
+    "monthSpending": 8188.21,
+    "monthNet": -3867.07,
+    "lastMonthNet": 577.69
+  },
+  "accounts": [
+    { "name": "Home Bills", "institution": "U.S. Bank", "type": "Checking", "current": -602.03, "available": -642.03 },
+    { "name": "Brooks Jevon", "institution": "U.S. Bank", "type": "Checking", "current": 4.97, "available": -25.01 },
+    { "name": "JH Health Account", "institution": "U.S. Bank", "type": "Checking", "current": 38.00, "available": 38.00 },
+    { "name": "Bitcoin", "institution": "Cash App", "type": "Savings", "current": 13.95 },
+    { "name": "Quicksilver", "institution": "Capital One", "type": "CreditCard", "current": 5942.88 },
+    { "name": "Allyson", "institution": "Discover", "type": "CreditCard", "current": 13386.36 },
+    { "name": "Andrew", "institution": "Discover", "type": "CreditCard", "current": 8044.81 },
+    { "name": "Credit Card - 2080", "institution": "U.S. Bank", "type": "CreditCard", "current": 486.42 }
   ],
-  "oneOffs": [ { "name": "Car payment (HMF)", "icon": "🚗", "amount": 596.59, "date": "2026-09-15", "type": "bill" } ],
+  "income": [
+    { "name": "Charles R Drew (paycheck)", "icon": "🏥", "amount": 2379.48, "dom": 10 },
+    { "name": "VA / DFAS", "icon": "🎖️", "amount": 1018.33, "dom": 1 }
+  ],
+  "bills": [
+    { "name": "Rent", "icon": "🏠", "amount": 1434.95, "dom": 1, "category": "Rent" },
+    { "name": "T-Mobile", "icon": "📱", "amount": 289.50, "dom": 26, "category": "Utilities" },
+    { "name": "Discover payment", "icon": "💳", "amount": 242.90, "dom": 2, "category": "Card payment" },
+    { "name": "USAA Insurance", "icon": "🛡️", "amount": 201.15, "dom": 15, "category": "Insurance" },
+    { "name": "Mercury Insurance", "icon": "🚗", "amount": 136.37, "dom": 3, "category": "Insurance" },
+    { "name": "NEJM (MassMedSoc)", "icon": "📰", "amount": 119.00, "dom": 14, "category": "Subscription" },
+    { "name": "Anthropic (Claude)", "icon": "🤖", "amount": 100.00, "dom": 15, "category": "Subscription" },
+    { "name": "American Express", "icon": "💳", "amount": 85.27, "dom": 25, "category": "Card payment" },
+    { "name": "Affirm", "icon": "🧾", "amount": 83.94, "dom": 8, "category": "Loan" },
+    { "name": "Primo Brands Water", "icon": "💧", "amount": 56.96, "dom": 15, "category": "Home" },
+    { "name": "Acorns", "icon": "🌰", "amount": 25.00, "dom": 15, "category": "Investing" },
+    { "name": "US Bank fee", "icon": "🏦", "amount": 17.91, "dom": 17, "category": "Fees" },
+    { "name": "Everwash", "icon": "🚿", "amount": 17.00, "dom": 15, "category": "Subscription" },
+    { "name": "Spotify", "icon": "🎧", "amount": 12.99, "dom": 6, "category": "Subscription" },
+    { "name": "Kindle Unlimited", "icon": "📖", "amount": 11.99, "dom": 8, "category": "Subscription" }
+  ],
+  "oneOffs": [
+    { "name": "Car payment (HMF)", "icon": "🚗", "amount": 596.59, "date": "2026-09-15", "type": "bill", "category": "Vehicle" }
+  ],
   "transactions": [
+    { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-17T08:22:00" },
+    { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-17T08:21:00" },
+    { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-17T08:20:00" },
     { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-16T08:20:00" },
     { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-16T08:19:00" },
     { "name": "US Bank — Overdraft Fee", "cat": "Fees", "icon": "⚠️", "amount": 36.00, "income": false, "account": "Home Bills", "ts": "2026-07-16T08:18:00" },
+    { "name": "Anthropic (Claude)", "cat": "Subscription", "icon": "🤖", "amount": 100.00, "income": false, "account": "Home Bills", "ts": "2026-07-15T20:15:00" },
+    { "name": "Primo Brands Water", "cat": "Home", "icon": "💧", "amount": 56.96, "income": false, "account": "Home Bills", "ts": "2026-07-15T18:30:00" },
+    { "name": "Everwash", "cat": "Subscription", "icon": "🚿", "amount": 17.00, "income": false, "account": "Home Bills", "ts": "2026-07-15T17:05:00" },
     { "name": "USAA Insurance Payment", "cat": "Insurance", "icon": "🛡️", "amount": 201.15, "income": false, "account": "Home Bills", "ts": "2026-07-15T14:02:00" },
     { "name": "Acorns", "cat": "Investing", "icon": "🌰", "amount": 25.00, "income": false, "account": "Home Bills", "ts": "2026-07-15T12:28:00" },
+    { "name": "CA DMV", "cat": "Vehicle", "icon": "🚗", "amount": 37.00, "income": false, "account": "Home Bills", "ts": "2026-07-14T21:00:00" },
     { "name": "NEJM (MassMedSoc)", "cat": "Subscription", "icon": "📰", "amount": 119.00, "income": false, "account": "Home Bills", "ts": "2026-07-14T19:40:00" },
     { "name": "Apple", "cat": "Shopping", "icon": "🍎", "amount": 37.95, "income": false, "account": "Brooks Jevon", "ts": "2026-07-14T16:10:00" },
-    { "name": "Target", "cat": "Shopping", "icon": "🎯", "amount": 18.10, "income": false, "account": "Brooks Jevon", "ts": "2026-07-14T15:22:00" },
-    { "name": "Apple", "cat": "Shopping", "icon": "🍎", "amount": 3.98, "income": false, "account": "Brooks Jevon", "ts": "2026-07-14T09:05:00" },
-    { "name": "Banfield Pet Hospital", "cat": "Pets", "icon": "🐾", "amount": 244.55, "income": false, "account": "Brooks Jevon", "ts": "2026-07-13T15:30:00" },
-    { "name": "Jack in the Box", "cat": "Dining", "icon": "🍔", "amount": 6.50, "income": false, "account": "Home Bills", "ts": "2026-07-13T13:12:00" },
-    { "name": "Tierra Mia Coffee", "cat": "Coffee", "icon": "☕", "amount": 5.75, "income": false, "account": "Home Bills", "ts": "2026-07-13T09:18:00" }
+    { "name": "Target", "cat": "Shopping", "icon": "🎯", "amount": 18.10, "income": false, "account": "Brooks Jevon", "ts": "2026-07-14T15:22:00" }
   ],
   "copilot": [
-    { "level": "critical", "icon": "🚨", "title": "Home Bills is overdrawn", "body": "Balance is −$282.35 (available −$494.03) and three more $36 overdraft fees hit on Jul 16. Every new charge adds another fee — move money into Home Bills immediately to stop the bleed before the next auto-debit posts." },
-    { "level": "serious", "icon": "🔥", "title": "Net worth slid to −$28,086", "body": "Down ~$2,100 in three days as checking went negative while $27,860 of card debt keeps compounding. The next paycheck should go to clearing the overdraft first, then the highest-interest card." },
-    { "level": "warning", "icon": "⚠️", "title": "July spending is running 1.8× income", "body": "Jul 1–16: +$4,321 in vs −$7,869 out = −$3,547 net. Big one-offs drove it — Banfield $245, USAA $201, NEJM $119 — on top of fixed bills. Last month you finished +$578." },
-    { "level": "info", "icon": "🔁", "title": "~$150/mo in recurring software", "body": "Spotify, Kindle, Apple, Acorns and the NEJM subscription recur monthly. Pausing the ones you're not actively using frees cash that would otherwise trigger more overdraft fees." }
+    {
+      "level": "critical",
+      "icon": "🚨",
+      "title": "Overdraft is deepening — Home Bills at −$602",
+      "body": "Six $36 overdraft fees hit in two days (Jul 16–17) — $216 in pure fees — and Brooks Jevon's available balance just went negative too. Recurring debits (Anthropic, Primo, Everwash) keep posting against the overdrawn account; pause or move them until payday."
+    },
+    {
+      "level": "serious",
+      "icon": "🔥",
+      "title": "Fees are now your #2 spending category",
+      "body": "Taxes and bank fees hit $1,481 this month — 24.8% of all spending, nearly as much as rent. Net worth slid to −$28,406. Ask US Bank to waive the fee cluster (they've waived them before) and consider turning off overdraft coverage."
+    },
+    {
+      "level": "warning",
+      "icon": "⚠️",
+      "title": "July is running −$3,867 with 13 days to go",
+      "body": "Jul 1–18: +$4,321 in vs −$8,188 out. June closed +$578 on $10,582 of income, so the shortfall is timing plus fees, not just spending — but the T-Mobile $290 and AmEx $85 due on the 25th–26th land before the Aug 1 deposit."
+    },
+    {
+      "level": "info",
+      "icon": "🔗",
+      "title": "Several account feeds are stale",
+      "body": "Era reports AmEx, Apple Card, Cash App, Chime, NorthWestern Mutual and USAA connections need to be re-linked from the Hub app, and Synchrony has denied access. Totals here may understate balances until those are reconnected."
+    }
+  ]
+}
+</script>16 in pure fees — and Brooks Jevon's available balance just went negative too. Recurring debits (Anthropic, Primo, Everwash) keep posting against the overdrawn account; pause or move them until payday."
+    },
+    {
+      "level": "serious",
+      "icon": "🔥",
+      "title": "Fees are now your #2 spending category",
+      "body": "Taxes and bank fees hit <script type="application/json" id="embedded-data">,481 this month — 24.8% of all spending, nearly as much as rent. Net worth slid to −</script>8,406. Ask US Bank to waive the fee cluster (they've waived them before) and consider turning off overdraft coverage."
+    },
+    {
+      "level": "warning",
+      "icon": "⚠️",
+      "title": "July is running −$3,867 with 13 days to go",
+      "body": "Jul 1–18: +$4,321 in vs −$8,188 out. June closed +$578 on <script type="application/json" id="embedded-data">0,582 of income, so the shortfall is timing plus fees, not just spending — but the T-Mobile </script>90 and AmEx $85 due on the 25th–26th land before the Aug 1 deposit."
+    },
+    {
+      "level": "info",
+      "icon": "🔗",
+      "title": "Several account feeds are stale",
+      "body": "Era reports AmEx, Apple Card, Cash App, Chime, NorthWestern Mutual and USAA connections need to be re-linked from the Hub app, and Synchrony has denied access. Totals here may understate balances until those are reconnected."
+    }
   ]
 }
 </script>
