@@ -69,14 +69,18 @@
   .card-h h2 { font-size:13px; margin:0; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
   .card-h .sub { font-size:12px; color:var(--muted); margin-left:auto; }
 
-  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:14px; }
-  .kpi { padding:15px 16px 16px; }
-  .kpi .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700; display:flex; align-items:center; gap:6px; }
-  .kpi .value { font-size:26px; font-weight:650; margin:8px 0 2px; letter-spacing:-0.02em; }
-  .kpi .value.neg { color:var(--expense); }
-  .kpi .meta { font-size:12.5px; color:var(--text-2); }
-  .kpi .meta.good { color:var(--income-ink); font-weight:600; }
-  .kpi .meta.bad { color:var(--expense); font-weight:600; }
+  .hero { display:flex; align-items:stretch; gap:18px; margin-bottom:14px; padding:20px 22px; }
+  .hero-main { flex:1 1 auto; min-width:0; }
+  .hero-kicker { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; font-weight:700; }
+  .hero-value { font-size:34px; font-weight:700; letter-spacing:-0.02em; margin:6px 0 4px; }
+  .hero.neg .hero-value { color:var(--expense); }
+  .hero.ok .hero-value { color:var(--income-ink); }
+  .hero-sub { font-size:13.5px; color:var(--text-2); max-width:560px; line-height:1.55; }
+  .hero-stats { display:flex; flex-direction:column; justify-content:center; gap:10px;
+    border-left:1px solid var(--grid); padding-left:20px; min-width:190px; }
+  .hstat b { display:block; font-size:16px; font-weight:650; font-variant-numeric:tabular-nums; }
+  .hstat b.neg { color:var(--expense); }
+  .hstat span { font-size:12px; color:var(--muted); }
   .flash { animation:flash 1s ease; }
   @keyframes flash { 0%{background:color-mix(in srgb,var(--series-1) 16%,transparent);} 100%{background:transparent;} }
 
@@ -86,6 +90,9 @@
   .cp-head .ai { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:linear-gradient(135deg,var(--series-1),#7c5cff); color:#fff; font-size:14px; }
   .cp-head h2 { font-size:13px; margin:0; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
   .cp-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:10px; padding:6px 8px 4px; }
+  .cp-list.collapsed .insight:nth-child(n+2) { display:none; }
+  .linkbtn { font:inherit; font-size:12.5px; font-weight:600; color:var(--series-1); background:none; border:0; cursor:pointer; padding:0; margin-left:auto; }
+  .linkbtn:hover { text-decoration:underline; }
   .insight { border:1px solid var(--border); border-radius:11px; padding:11px 12px; background:var(--surface-1); border-left-width:3px; }
   .insight.critical { border-left-color:var(--critical); } .insight.serious { border-left-color:var(--serious); }
   .insight.warning { border-left-color:var(--warning); } .insight.info { border-left-color:var(--series-1); }
@@ -99,12 +106,12 @@
   .seg button { font:inherit; font-size:12px; font-weight:600; border:0; background:var(--surface-1); color:var(--text-2); padding:5px 10px; cursor:pointer; }
   .seg button[aria-pressed="true"] { background:var(--chip); color:var(--text-1); }
   .feed { list-style:none; margin:10px 0 0; padding:6px 8px 10px; max-height:520px; overflow-y:auto; }
-  .tx { display:grid; grid-template-columns:34px 1fr auto; gap:11px; align-items:center; padding:10px 8px; border-radius:10px; }
+  .tx { display:grid; grid-template-columns:28px 1fr auto; gap:10px; align-items:center; padding:8px; border-radius:10px; }
   .tx + .tx { border-top:1px solid var(--grid); }
   .tx.enter { animation:slidein .5s cubic-bezier(.2,.7,.2,1); }
   @keyframes slidein { from{opacity:0; transform:translateY(-10px); background:var(--series-1-soft);} to{opacity:1; transform:none;} }
-  .tx .ic { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; font-size:16px; background:var(--chip); }
-  .tx .name { font-weight:600; font-size:14px; }
+  .tx .ic { width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font-size:14px; background:var(--chip); }
+  .tx .name { font-weight:600; font-size:13.5px; }
   .tx .cat { font-size:12px; color:var(--muted); }
   .tx .right { text-align:right; }
   .tx .amt { font-weight:650; font-variant-numeric:tabular-nums; font-size:14.5px; }
@@ -118,7 +125,7 @@
   .cal { padding:12px 14px 16px; }
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
   .cal-dow { font-size:11px; font-weight:700; color:var(--muted); text-align:center; padding:2px 0 4px; text-transform:uppercase; letter-spacing:.04em; }
-  .day { position:relative; min-height:66px; border:1px solid var(--grid); border-radius:9px; padding:5px 6px; background:var(--surface-1); overflow:hidden; }
+  .day { position:relative; min-height:56px; border:1px solid var(--grid); border-radius:9px; padding:5px 6px; background:var(--surface-1); overflow:hidden; }
   .day.pad { background:transparent; border-color:transparent; }
   .day .num { font-size:12px; color:var(--text-2); font-variant-numeric:tabular-nums; }
   .day.today { border-color:var(--series-1); box-shadow:inset 0 0 0 1px var(--series-1); }
@@ -159,8 +166,9 @@
   .foot { margin-top:26px; font-size:12px; color:var(--muted); line-height:1.7; }
   .foot code { background:var(--chip); padding:1px 5px; border-radius:4px; font-size:11.5px; }
 
-  @media (max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr);} .cols{grid-template-columns:1fr;} }
-  @media (max-width:480px){ .day{min-height:56px;} .kpi .value{font-size:22px;} }
+  @media (max-width:860px){ .cols{grid-template-columns:1fr;} .hero{flex-direction:column; gap:14px;}
+    .hero-stats{flex-direction:row; border-left:0; padding-left:0; border-top:1px solid var(--grid); padding-top:12px; gap:22px;} }
+  @media (max-width:480px){ .day{min-height:48px;} .hero-value{font-size:27px;} }
 </style>
 </head>
 <body>
@@ -180,33 +188,23 @@
   </header>
   <div class="toast" id="toast"></div>
 
-  <section class="kpis">
-    <div class="card kpi" id="kpiBalance">
-      <div class="label">💵 Cash on hand</div>
-      <div class="value" id="balVal">—</div>
-      <div class="meta" id="balMeta">across checking</div>
+  <section class="card hero" id="heroCard">
+    <div class="hero-main">
+      <div class="hero-kicker" id="heroKicker">Bottom line</div>
+      <div class="hero-value" id="heroValue">—</div>
+      <div class="hero-sub" id="heroSub">—</div>
     </div>
-    <div class="card kpi">
-      <div class="label">📅 Next payday</div>
-      <div class="value" id="payVal">—</div>
-      <div class="meta good" id="payMeta">—</div>
-    </div>
-    <div class="card kpi">
-      <div class="label">🧾 Needed before payday</div>
-      <div class="value" id="needVal">—</div>
-      <div class="meta" id="needMeta">—</div>
-    </div>
-    <div class="card kpi" id="kpiSafe">
-      <div class="label">✅ Safe to spend</div>
-      <div class="value" id="safeVal">—</div>
-      <div class="meta" id="safeMeta">after upcoming bills</div>
+    <div class="hero-stats">
+      <div class="hstat"><b id="balVal">—</b><span>cash on hand</span></div>
+      <div class="hstat"><b id="payVal">—</b><span id="payMeta">next payday</span></div>
+      <div class="hstat"><b id="needVal">—</b><span id="needMeta">due before payday</span></div>
     </div>
   </section>
 
   <!-- AI Copilot -->
   <div class="card copilot">
-    <div class="cp-head"><span class="ai">✨</span><h2>Financial Copilot</h2><span class="sub" id="cpSub" style="margin-left:auto;font-size:12px;color:var(--muted)"></span></div>
-    <div class="cp-list" id="cpList"></div>
+    <div class="cp-head"><span class="ai">✨</span><h2>Financial Copilot</h2><button class="linkbtn" id="cpToggle"></button></div>
+    <div class="cp-list collapsed" id="cpList"></div>
   </div>
 
   <div class="cols">
@@ -364,28 +362,6 @@
     }
   ]
 }
-</script>16 in pure fees — and Brooks Jevon's available balance just went negative too. Recurring debits (Anthropic, Primo, Everwash) keep posting against the overdrawn account; pause or move them until payday."
-    },
-    {
-      "level": "serious",
-      "icon": "🔥",
-      "title": "Fees are now your #2 spending category",
-      "body": "Taxes and bank fees hit <script type="application/json" id="embedded-data">,481 this month — 24.8% of all spending, nearly as much as rent. Net worth slid to −</script>8,406. Ask US Bank to waive the fee cluster (they've waived them before) and consider turning off overdraft coverage."
-    },
-    {
-      "level": "warning",
-      "icon": "⚠️",
-      "title": "July is running −$3,867 with 13 days to go",
-      "body": "Jul 1–18: +$4,321 in vs −$8,188 out. June closed +$578 on <script type="application/json" id="embedded-data">0,582 of income, so the shortfall is timing plus fees, not just spending — but the T-Mobile </script>90 and AmEx $85 due on the 25th–26th land before the Aug 1 deposit."
-    },
-    {
-      "level": "info",
-      "icon": "🔗",
-      "title": "Several account feeds are stale",
-      "body": "Era reports AmEx, Apple Card, Cash App, Chime, NorthWestern Mutual and USAA connections need to be re-linked from the Hub app, and Synchrony has denied access. Totals here may understate balances until those are reconnected."
-    }
-  ]
-}
 </script>
 
 <script>
@@ -406,6 +382,7 @@ function daysBetween(a,b){ return Math.round((startOfDay(b)-startOfDay(a))/DAY_M
 function ymd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 function parseTs(s){ return new Date(s); }
 function relDay(d){ const n=daysBetween(new Date(),d); if(n===0)return"today"; if(n===1)return"tomorrow"; if(n<0)return`${-n}d ago`; return`in ${n} days`; }
+function compactAmt(v){ return v>=1000 ? "$"+(v/1000).toFixed(1).replace(/\.0$/,"")+"k" : "$"+Math.round(v); }
 function clampDom(y,m,dom){ const dim=new Date(y,m+1,0).getDate(); return Math.min(dom,dim); }
 
 /* ---- schedule expansion from monthly income/bills + dated one-offs ---- */
@@ -444,6 +421,7 @@ function renderTx(t,animate){
   const sign=t.income?"+":"−";
   const d=parseTs(t.ts);
   const time=d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  li.title=t.account||"";
   li.innerHTML=`
     <span class="ic">${t.icon||"💳"}</span>
     <span>
@@ -452,7 +430,6 @@ function renderTx(t,animate){
     </span>
     <span class="right">
       <div class="amt ${t.income?"in":"out"}">${sign}${fmt2.format(t.amount)}</div>
-      <div class="acct">${t.account||""}</div>
     </span>`;
   return li;
 }
@@ -476,32 +453,39 @@ function ingestNew(txs){
 
 /* ===================== KPIs ===================== */
 function updateBalanceKPI(flash){
-  document.getElementById("balVal").textContent=fmt2.format(balance);
-  if(flash){ const c=document.getElementById("kpiBalance"); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); }
-  const below=balance<DATA.safetyBuffer;
-  const m=document.getElementById("balMeta");
-  m.textContent=below?"below safety buffer":"across checking accounts";
-  m.className="meta "+(below?"bad":"");
+  const el=document.getElementById("balVal");
+  el.textContent=fmt2.format(balance);
+  el.classList.toggle("neg", balance<0);
+  if(flash){ const c=document.getElementById("heroCard"); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); }
 }
 function refreshDerived(){
   const today=startOfDay(new Date());
   const ni=nextIncome(today);
+  const payLabel=ni?`${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:"payday";
   if(ni){
     document.getElementById("payVal").textContent=fmt0.format(ni.amount);
-    document.getElementById("payMeta").textContent=`${ni.icon} ${DOW[ni.date.getDay()]} ${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()} · ${relDay(ni.date)}`;
+    document.getElementById("payMeta").textContent=`payday ${payLabel} · ${relDay(ni.date)}`;
   }
   const horizonEnd=ni?ni.date:addDays(today,30);
   const due=billsBetween(today,horizonEnd).filter(b=>b.date>=today&&b.date<=horizonEnd);
   const totalNeeded=due.reduce((s,b)=>s+b.amount,0);
   document.getElementById("needVal").textContent=fmt0.format(totalNeeded);
-  document.getElementById("needMeta").textContent=`${due.length} bill${due.length!==1?"s":""}${ni?` before ${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:""}`;
+  document.getElementById("needMeta").textContent=`${due.length} bill${due.length!==1?"s":""} due by ${payLabel}`;
 
   const safe=balance-totalNeeded-DATA.safetyBuffer;
-  document.getElementById("safeVal").textContent=fmt2.format(Math.max(0,safe));
-  const sm=document.getElementById("safeMeta");
-  if(safe>=0){ sm.textContent="after upcoming bills + buffer"; sm.className="meta good"; }
-  else { sm.textContent=`short ${fmt0.format(-safe)} before payday`; sm.className="meta bad"; }
-  const sv=document.getElementById("safeVal"); sv.classList.toggle("neg",safe<0);
+  const hc=document.getElementById("heroCard"), hk=document.getElementById("heroKicker"),
+        hv=document.getElementById("heroValue"), hs=document.getElementById("heroSub");
+  if(safe>=0){
+    hc.classList.add("ok"); hc.classList.remove("neg");
+    hk.textContent="Safe to spend";
+    hv.textContent=fmt0.format(safe);
+    hs.textContent=`What's left after ${fmt0.format(totalNeeded)} in bills due by ${payLabel} and your ${fmt0.format(DATA.safetyBuffer)} cushion.`;
+  } else {
+    hc.classList.add("neg"); hc.classList.remove("ok");
+    hk.textContent="Needed before payday";
+    hv.textContent=`${fmt0.format(-safe)} short`;
+    hs.textContent=`Cash won't cover the ${fmt0.format(totalNeeded)} in bills due by ${payLabel} plus your ${fmt0.format(DATA.safetyBuffer)} cushion. Add money before the next bill hits.`;
+  }
 
   renderNeeded(today,ni,due,totalNeeded);
   renderChart();
@@ -535,25 +519,19 @@ function renderNeeded(today,ni,due,totalNeeded){
 /* ===================== copilot panel ===================== */
 function renderCopilot(){
   const list=document.getElementById("cpList"); list.innerHTML="";
-  const today=startOfDay(new Date());
-  const ni=nextIncome(today);
-  const due=ni?billsBetween(today,ni.date).filter(b=>b.date>=today&&b.date<=ni.date):[];
-  const totalNeeded=due.reduce((s,b)=>s+b.amount,0);
-  const safe=balance-totalNeeded-DATA.safetyBuffer;
-
-  // dynamic, computed insight first
-  const dyn = safe>=0
-    ? { level:"good", icon:"🟢", title:`Safe to spend ${fmt0.format(Math.max(0,safe))}`, body:`After ${fmt0.format(totalNeeded)} of bills due before ${ni?`${MON[ni.date.getMonth()].slice(0,3)} ${ni.date.getDate()}`:"payday"} and a ${fmt0.format(DATA.safetyBuffer)} cushion, that’s what’s truly discretionary right now.` }
-    : { level:"critical", icon:"⛔", title:`Projected ${fmt0.format(-safe)} short before payday`, body:`${fmt0.format(totalNeeded)} in bills are due before your next deposit but cash on hand can’t cover them plus the ${fmt0.format(DATA.safetyBuffer)} buffer. Delay non-essentials or move money in.` };
-  const items=[dyn,...(DATA.copilot||[])];
-
-  document.getElementById("cpSub").textContent=`${items.length} insights · from your Era snapshot`;
+  const items=DATA.copilot||[];
   for(const it of items){
     const d=document.createElement("div");
     d.className="insight "+(it.level||"info");
     d.innerHTML=`<div class="it">${it.icon||"•"} ${it.title}</div><div class="ib">${it.body}</div>`;
     list.appendChild(d);
   }
+  const btn=document.getElementById("cpToggle");
+  if(items.length<=1){ btn.style.display="none"; list.classList.remove("collapsed"); return; }
+  btn.style.display="";
+  const label=()=> btn.textContent=list.classList.contains("collapsed")?`Show ${items.length-1} more`:"Show less";
+  label();
+  btn.onclick=()=>{ list.classList.toggle("collapsed"); label(); };
 }
 
 /* ===================== projection ===================== */
@@ -629,8 +607,18 @@ function renderCal(){
     const d=startOfDay(new Date(calYear,calMonth,day));
     const isToday=d.getTime()===today.getTime(); const isPast=d<today;
     let badges="";
-    (paysByDay[day]||[]).forEach(e=>{ badges+=`<span class="badge pay" title="${e.name}">+${fmt0.format(e.amount)} pay</span>`; });
-    (billsByDay[day]||[]).forEach(b=>{ badges+=`<span class="badge due" title="${b.name}">${b.icon||"🧾"} −${fmt0.format(b.amount)}</span>`; });
+    const pays=paysByDay[day]||[];
+    if(pays.length){
+      const tot=pays.reduce((s,e)=>s+e.amount,0);
+      const tip=pays.map(e=>`${e.name} +${fmt0.format(e.amount)}`).join(", ");
+      badges+=`<span class="badge pay" title="${tip}">+${compactAmt(tot)}</span>`;
+    }
+    const dueList=billsByDay[day]||[];
+    if(dueList.length){
+      const tot=dueList.reduce((s,b)=>s+b.amount,0);
+      const tip=dueList.map(b=>`${b.name} −${fmt0.format(b.amount)}`).join(", ");
+      badges+=`<span class="badge due" title="${tip}">${dueList.length>1?dueList.length+"× ":""}−${compactAmt(tot)}</span>`;
+    }
     cells+=`<div class="day ${isToday?"today":""} ${isPast?"past":""}"><div class="num">${day}</div>${badges}</div>`;
   }
   grid.innerHTML=cells;
